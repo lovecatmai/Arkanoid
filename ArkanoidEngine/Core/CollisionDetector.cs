@@ -8,6 +8,12 @@ namespace ArkanoidEngine.Core
     /// </summary>
     public static class CollisionDetector
     {
+        private const float paddleHalfWidthDivisor = 2f;
+        private const float hitRatioMinClamp = -1f;
+        private const float hitRatioMaxClamp = 1f;
+        private const float maxDeflectionAngleInDegrees = 65f;
+        private const float degreesToRadiansConversionDivisor = 180f;
+
         /// <summary>
         /// Проверяет столкновение мяча с прямоугольником и возвращает оси отражения.
         /// </summary>
@@ -24,18 +30,18 @@ namespace ArkanoidEngine.Core
             reflectX = false;
             reflectY = false;
 
-            float closestX = Clamp(ball.Position.X, rectLeft, rectRight);
-            float closestY = Clamp(ball.Position.Y, rectTop, rectBottom);
+            var closestX = Clamp(ball.Position.X, rectLeft, rectRight);
+            var closestY = Clamp(ball.Position.Y, rectTop, rectBottom);
 
-            float distanceX = ball.Position.X - closestX;
-            float distanceY = ball.Position.Y - closestY;
+            var distanceX = ball.Position.X - closestX;
+            var distanceY = ball.Position.Y - closestY;
 
-            float squaredDistance = distanceX * distanceX + distanceY * distanceY;
+            var squaredDistance = distanceX * distanceX + distanceY * distanceY;
             if (squaredDistance >= ball.Radius * ball.Radius)
                 return false;
 
-            float penetrationX = ball.Radius - Math.Abs(distanceX);
-            float penetrationY = ball.Radius - Math.Abs(distanceY);
+            var penetrationX = ball.Radius - Math.Abs(distanceX);
+            var penetrationY = ball.Radius - Math.Abs(distanceY);
 
             if (penetrationX < penetrationY)
                 reflectX = true;
@@ -52,22 +58,22 @@ namespace ArkanoidEngine.Core
         {
             newVelocity = ball.Velocity;
 
-            bool isHit = CheckBallVsRect(
+            var isHit = CheckBallVsRect(
                 ball,
                 paddle.Left, paddle.Top, paddle.Right, paddle.Bottom,
                 out bool reflectX, out bool reflectY);
 
             if (!isHit) return false;
 
-            float currentSpeed = (float)Math.Sqrt(
+            var currentSpeed = (float)Math.Sqrt(
                 ball.Velocity.X * ball.Velocity.X +
                 ball.Velocity.Y * ball.Velocity.Y);
 
-            float hitPositionRatio = (ball.Position.X - paddle.CenterX) / (paddle.Width / 2f);
-            hitPositionRatio = Clamp(hitPositionRatio, -1f, 1f);
+            var hitPositionRatio = (ball.Position.X - paddle.CenterX) / (paddle.Width / paddleHalfWidthDivisor);
+            hitPositionRatio = Clamp(hitPositionRatio, hitRatioMinClamp, hitRatioMaxClamp);
 
-            float maxDeflectionAngle = 65f * (float)(Math.PI / 180f);
-            float deflectionAngle    = hitPositionRatio * maxDeflectionAngle;
+            var maxDeflectionAngle = maxDeflectionAngleInDegrees * (float)(Math.PI / degreesToRadiansConversionDivisor);
+            var deflectionAngle    = hitPositionRatio * maxDeflectionAngle;
 
             newVelocity = new Vector2(
                 (float)Math.Sin(deflectionAngle) * currentSpeed,

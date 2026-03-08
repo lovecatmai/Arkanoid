@@ -8,13 +8,18 @@ namespace ArkanoidEngine.Core
     /// </summary>
     public static class LevelBuilder
     {
-        private const int   numberOfColumns          = 10;
-        private const int   numberOfRows             = 6;
-        private const float brickHeight              = 20f;
+        private const int numberOfColumns = 10;
+        private const int numberOfRows = 6;
+        private const float brickHeightInPixels = 20f;
         private const float horizontalGapBetweenBricks = 3f;
-        private const float verticalGapBetweenBricks   = 5f;
-        private const float topOffsetBeforeFirstRow  = 70f;
-        private const float sideMarginFromWall       = 4f;
+        private const float verticalGapBetweenBricks = 5f;
+        private const float topOffsetBeforeFirstRow = 70f;
+        private const float sideMarginFromWall = 4f;
+        private const int numberOfGapsBetweenColumns = numberOfColumns - 1;
+        private const int numberOfSideMargins = 2;
+        private const int brickHitPointsForLevel1 = 1;
+        private const int firstColumnIndex = 0;
+        private const int firstRowIndex = 0;
 
         /// <summary>
         /// Строит список кирпичей для первого уровня.
@@ -23,17 +28,17 @@ namespace ArkanoidEngine.Core
         {
             var bricks = new List<Brick>();
 
-            float totalHorizontalGaps = horizontalGapBetweenBricks * (numberOfColumns - 1) + sideMarginFromWall * 2;
-            float brickWidth          = (fieldWidth - totalHorizontalGaps) / numberOfColumns;
+            var totalHorizontalGaps = horizontalGapBetweenBricks * numberOfGapsBetweenColumns + sideMarginFromWall * numberOfSideMargins;
+            var brickWidth = (fieldWidth - totalHorizontalGaps) / numberOfColumns;
 
-            for (int row = 0; row < numberOfRows; row++)
+            for (var row = firstRowIndex; row < numberOfRows; row++)
             {
-                for (int col = 0; col < numberOfColumns; col++)
+                for (var col = firstColumnIndex; col < numberOfColumns; col++)
                 {
-                    float x = sideMarginFromWall + col * (brickWidth + horizontalGapBetweenBricks);
-                    float y = topOffsetBeforeFirstRow + row * (brickHeight + verticalGapBetweenBricks);
+                    var x = sideMarginFromWall + col * (brickWidth + horizontalGapBetweenBricks);
+                    var y = topOffsetBeforeFirstRow + row * (brickHeightInPixels + verticalGapBetweenBricks);
 
-                    bricks.Add(new Brick(new Vector2(x, y), brickWidth, brickHeight, hp: 1));
+                    bricks.Add(new Brick(new Vector2(x, y), brickWidth, brickHeightInPixels, hp: brickHitPointsForLevel1));
                 }
             }
 

@@ -5,6 +5,11 @@ namespace ArkanoidEngine.Entities
     /// </summary>
     public class Brick
     {
+        private const int brickMinHP = 0;
+        private const int brickMaxHP = 1;
+        private const float halfWidthDivisor = 2f;
+        private const float halfHeightDivisor = 2f;
+
         /// <summary>
         /// Позиция левого верхнего угла кирпича.
         /// </summary>
@@ -33,7 +38,7 @@ namespace ArkanoidEngine.Entities
         /// <summary>
         /// Признак того, что кирпич ещё не разрушен.
         /// </summary>
-        public bool IsAlive => CurrentHp > 0;
+        public bool IsAlive => CurrentHp > brickMinHP;
 
         /// <summary>
         /// Левая граница кирпича.
@@ -58,17 +63,17 @@ namespace ArkanoidEngine.Entities
         /// <summary>
         /// Горизонтальный центр кирпича.
         /// </summary>
-        public float CenterX => Position.X + Width / 2f;
+        public float CenterX => Position.X + Width / halfWidthDivisor;
 
         /// <summary>
         /// Вертикальный центр кирпича.
         /// </summary>
-        public float CenterY => Position.Y + Height / 2f;
+        public float CenterY => Position.Y + Height / halfHeightDivisor;
 
         /// <summary>
         /// Создаёт кирпич с заданной позицией, размерами и количеством HP.
         /// </summary>
-        public Brick(Vector2 position, float width, float height, int hp = 1)
+        public Brick(Vector2 position, float width, float height, int hp = brickMaxHP)
         {
             Position  = position;
             Width     = width;
@@ -83,7 +88,7 @@ namespace ArkanoidEngine.Entities
         public void TakeDamage(int damage)
         {
             CurrentHp -= damage;
-            if (CurrentHp < 0) CurrentHp = 0;
+            if (CurrentHp < brickMinHP) CurrentHp = brickMinHP;
         }
     }
 }

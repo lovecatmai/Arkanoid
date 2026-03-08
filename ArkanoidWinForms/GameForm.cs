@@ -16,6 +16,12 @@ namespace ArkanoidWinForms
         private Timer      gameLoopTimer;
         private DateTime   lastFrameTime;
 
+        private const float maxAllowedDeltaTimeInSeconds = 0.05f;
+
+        private int ClientSizeWindowWidth = 600;
+        private int ClientSizeWindowHeight = 800;
+        private int gameLoopTimerInterval = 16;
+
         /// <summary>
         /// Создаёт форму и запускает игру.
         /// </summary>
@@ -27,7 +33,7 @@ namespace ArkanoidWinForms
         
         private void SetupForm()
         {
-            ClientSize      = new Size(600, 800);
+            ClientSize      = new Size(ClientSizeWindowWidth, ClientSizeWindowHeight);
             Text            = "Arkanoid";
             FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox     = false;
@@ -38,13 +44,13 @@ namespace ArkanoidWinForms
 
         private void SetupGame()
         {
-            gameEngine   = new GameEngine(fieldWidth: 600, fieldHeight: 800);
+            gameEngine   = new GameEngine(fieldWidth: ClientSizeWindowWidth, fieldHeight: ClientSizeWindowHeight);
             gameRenderer = new Renderer(gameEngine);
 
             gameEngine.OnBallLost      += () => { };
             gameEngine.OnLevelComplete += () => { };
 
-            gameLoopTimer          = new Timer { Interval = 16 };
+            gameLoopTimer          = new Timer { Interval = gameLoopTimerInterval };
             gameLoopTimer.Tick    += OnGameLoopTick;
             lastFrameTime          = DateTime.UtcNow;
             gameLoopTimer.Start();
@@ -56,11 +62,11 @@ namespace ArkanoidWinForms
 
         private void OnGameLoopTick(object sender, EventArgs e)
         {
-            DateTime currentFrameTime = DateTime.UtcNow;
-            float    deltaTime        = (float)(currentFrameTime - lastFrameTime).TotalSeconds;
+            var currentFrameTime = DateTime.UtcNow;
+            var deltaTime        = (float)(currentFrameTime - lastFrameTime).TotalSeconds;
             lastFrameTime             = currentFrameTime;
 
-            deltaTime = Math.Min(deltaTime, 0.05f);
+            deltaTime = Math.Min(deltaTime, maxAllowedDeltaTimeInSeconds);
 
             gameEngine.Update(deltaTime);
             Invalidate();

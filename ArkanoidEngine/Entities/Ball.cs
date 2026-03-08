@@ -5,6 +5,9 @@ namespace ArkanoidEngine.Entities
     /// </summary>
     public class Ball
     {
+        private const float ballRadius = 8f;
+        private const int ballDamage = 1;
+
         /// <summary>
         /// Позиция центра мяча на игровом поле.
         /// </summary>
@@ -28,7 +31,7 @@ namespace ArkanoidEngine.Entities
         /// <summary>
         /// Создаёт мяч с заданными параметрами.
         /// </summary>
-        public Ball(Vector2 position, Vector2 velocity, float radius = 8f, int damage = 1)
+        public Ball(Vector2 position, Vector2 velocity, float radius = ballRadius, int damage = ballDamage)
         {
             Position = position;
             Velocity = velocity;

@@ -56,16 +56,29 @@ namespace ArkanoidEngine.Core
 
         private List<Brick> brickList;
 
-        private const float ballSpeedPixelsPerSecond  = 320f;
-        private const float paddleWidthInPixels       = 100f;
-        private const float paddleHeightInPixels      = 14f;
-        private const float paddleOffsetFromBottom    = 50f;
-        private const float ballOffsetAbovePaddle     = 18f;
+        private const float ballSpeedPixelsPerSecond = 320f;
+        private const float paddleWidthInPixels = 100f;
+        private const float paddleHeightInPixels = 14f;
+        private const float paddleOffsetFromBottom = 50f;
+        private const float ballOffsetAbovePaddle = 18f;
+        private const float ballRadiusInPixels = 8f;
+        private const int ballDamagePerHit = 1;
+        private const float ballInitialHorizontalVelocity = 0f;
+        private const float paddleHalfWidthDivisor = 2f;
+        private const float fieldHalfWidthDivisor = 2f;
+        private const float wallLeftBoundary = 0f;
+        private const float wallTopBoundary = 0f;
+        private const float ballAntiStickOffsetFromPaddle = 1f;
+        private const float negativeDirectionMultiplier = -1f;
+        private const int scorePerDestroyedBrick = 10;
+        private const int ClientSizeWindowWidth = 600;
+        private const int ClientSizeWindowHeight = 800;
+        private const int minPlayerScore = 0;
 
         /// <summary>
         /// Создаёт движок с заданными размерами поля и инициализирует игру.
         /// </summary>
-        public GameEngine(int fieldWidth = 600, int fieldHeight = 800)
+        public GameEngine(int fieldWidth = ClientSizeWindowWidth, int fieldHeight = ClientSizeWindowHeight)
         {
             Field = new GameField(fieldWidth, fieldHeight);
             Initialize();
@@ -85,9 +98,9 @@ namespace ArkanoidEngine.Core
         /// </summary>
         public void SetPaddleX(float x)
         {
-            float halfPaddleWidth = Paddle.Width / 2f;
-            float clampedX        = Math.Max(halfPaddleWidth, Math.Min(Field.Width - halfPaddleWidth, x));
-            Paddle.Position       = new Vector2(clampedX, Paddle.Position.Y);
+            var halfPaddleWidth = Paddle.Width / paddleHalfWidthDivisor;
+            var clampedX = Math.Max(halfPaddleWidth, Math.Min(Field.Width - halfPaddleWidth, x));
+            Paddle.Position = new Vector2(clampedX, Paddle.Position.Y);
 
             if (State == GameState.WaitingToStart)
                 Ball.Position = new Vector2(clampedX, Ball.Position.Y);
@@ -117,27 +130,27 @@ namespace ArkanoidEngine.Core
 
         private void Initialize()
         {
-            float paddlePositionY = Field.Height - paddleOffsetFromBottom;
+            var paddlePositionY = Field.Height - paddleOffsetFromBottom;
             Paddle = new Paddle(
-                position: new Vector2(Field.Width / 2f, paddlePositionY),
-                width:    paddleWidthInPixels,
-                height:   paddleHeightInPixels);
+                position: new Vector2(Field.Width / fieldHalfWidthDivisor, paddlePositionY),
+                width: paddleWidthInPixels,
+                height: paddleHeightInPixels);
 
             ResetBallAbovePaddle();
 
             brickList = LevelBuilder.BuildLevel1(Field.Width);
-            Score     = 0;
-            State     = GameState.WaitingToStart;
+            Score = minPlayerScore;
+            State = GameState.WaitingToStart;
         }
 
         private void ResetBallAbovePaddle()
         {
-            float ballPositionY = Paddle.Top - ballOffsetAbovePaddle;
+            var ballPositionY = Paddle.Top - ballOffsetAbovePaddle;
             Ball = new Ball(
                 position: new Vector2(Paddle.CenterX, ballPositionY),
-                velocity: new Vector2(0f, -ballSpeedPixelsPerSecond),
-                radius:   8f,
-                damage:   1);
+                velocity: new Vector2(ballInitialHorizontalVelocity, negativeDirectionMultiplier * ballSpeedPixelsPerSecond),
+                radius: ballRadiusInPixels,
+                damage: ballDamagePerHit);
         }
 
         private void MoveBall(float deltaTime)
@@ -150,7 +163,7 @@ namespace ArkanoidEngine.Core
             var currentPosition = Ball.Position;
             var currentVelocity = Ball.Velocity;
 
-            if (currentPosition.X - Ball.Radius < 0)
+            if (currentPosition.X - Ball.Radius < wallLeftBoundary)
             {
                 currentPosition = new Vector2(Ball.Radius, currentPosition.Y);
                 currentVelocity = new Vector2(Math.Abs(currentVelocity.X), currentVelocity.Y);
@@ -159,10 +172,10 @@ namespace ArkanoidEngine.Core
             if (currentPosition.X + Ball.Radius > Field.Width)
             {
                 currentPosition = new Vector2(Field.Width - Ball.Radius, currentPosition.Y);
-                currentVelocity = new Vector2(-Math.Abs(currentVelocity.X), currentVelocity.Y);
+                currentVelocity = new Vector2(negativeDirectionMultiplier * Math.Abs(currentVelocity.X), currentVelocity.Y);
             }
 
-            if (currentPosition.Y - Ball.Radius < 0)
+            if (currentPosition.Y - Ball.Radius < wallTopBoundary)
             {
                 currentPosition = new Vector2(currentPosition.X, Ball.Radius);
                 currentVelocity = new Vector2(currentVelocity.X, Math.Abs(currentVelocity.Y));
@@ -180,12 +193,12 @@ namespace ArkanoidEngine.Core
 
         private void HandlePaddleCollision()
         {
-            if (Ball.Velocity.Y <= 0) return;
+            if (Ball.Velocity.Y <= wallTopBoundary) return;
 
             if (CollisionDetector.CheckBallVsPaddle(Ball, Paddle, out Vector2 velocityAfterBounce))
             {
                 Ball.Velocity = velocityAfterBounce;
-                Ball.Position = new Vector2(Ball.Position.X, Paddle.Top - Ball.Radius - 1f);
+                Ball.Position = new Vector2(Ball.Position.X, Paddle.Top - Ball.Radius - ballAntiStickOffsetFromPaddle);
             }
         }
 
@@ -195,7 +208,7 @@ namespace ArkanoidEngine.Core
             {
                 if (!brick.IsAlive) continue;
 
-                bool isHit = CollisionDetector.CheckBallVsRect(
+                var isHit = CollisionDetector.CheckBallVsRect(
                     Ball,
                     brick.Left, brick.Top, brick.Right, brick.Bottom,
                     out bool reflectX, out bool reflectY);
@@ -203,15 +216,15 @@ namespace ArkanoidEngine.Core
                 if (!isHit) continue;
 
                 var velocityAfterHit = Ball.Velocity;
-                if (reflectX) velocityAfterHit = new Vector2(-velocityAfterHit.X,  velocityAfterHit.Y);
-                if (reflectY) velocityAfterHit = new Vector2( velocityAfterHit.X, -velocityAfterHit.Y);
+                if (reflectX) velocityAfterHit = new Vector2(negativeDirectionMultiplier * velocityAfterHit.X, velocityAfterHit.Y);
+                if (reflectY) velocityAfterHit = new Vector2(velocityAfterHit.X, negativeDirectionMultiplier * velocityAfterHit.Y);
                 Ball.Velocity = velocityAfterHit;
 
                 brick.TakeDamage(Ball.Damage);
 
                 if (!brick.IsAlive)
                 {
-                    Score += 10;
+                    Score += scorePerDestroyedBrick;
                     OnBrickDestroyed?.Invoke(brick);
                 }
 
