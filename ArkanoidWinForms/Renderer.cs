@@ -4,122 +4,118 @@ using ArkanoidEngine.Core;
 namespace ArkanoidWinForms
 {
     /// <summary>
-    /// Handles all GDI+ rendering.
-    /// Knows nothing about WinForms controls — only receives a Graphics object.
+    /// Отрисовка всех игровых объектов через GDI+ на переданном контексте Graphics.
     /// </summary>
     internal sealed class Renderer
     {
-        private readonly GameEngine _engine;
+        private readonly GameEngine gameEngine;
 
-        // Pre-allocated brushes / pens / fonts to avoid per-frame allocations
-        private static readonly Font       FontHud      = new Font("Consolas", 14, FontStyle.Bold);
-        private static readonly Font       FontBig      = new Font("Consolas", 32, FontStyle.Bold);
-        private static readonly Font       FontSub      = new Font("Consolas", 14, FontStyle.Regular);
-        private static readonly SolidBrush BrushOverlay = new SolidBrush(Color.FromArgb(170, 10, 10, 20));
-        private static readonly SolidBrush BrushBrick   = new SolidBrush(Color.FromArgb(255, 72, 149, 239));
-        private static readonly SolidBrush BrushBrickHi = new SolidBrush(Color.FromArgb(255, 140, 195, 255));
-        private static readonly Pen        PenBrick      = new Pen(Color.FromArgb(255, 30,  90, 180), 1f);
-        private static readonly SolidBrush BrushPaddle  = new SolidBrush(Color.White);
-        private static readonly SolidBrush BrushBall    = new SolidBrush(Color.FromArgb(255, 255, 160, 40));
-        private static readonly SolidBrush BrushText    = new SolidBrush(Color.White);
-        private static readonly SolidBrush BrushSubText = new SolidBrush(Color.FromArgb(200, 200, 200, 200));
+        private static readonly Font       hudFont             = new Font("Consolas", 14, FontStyle.Bold);
+        private static readonly Font       overlayTitleFont    = new Font("Consolas", 32, FontStyle.Bold);
+        private static readonly Font       overlaySubtitleFont = new Font("Consolas", 14, FontStyle.Regular);
+        private static readonly SolidBrush overlayBackgroundBrush = new SolidBrush(Color.FromArgb(170, 10, 10, 20));
+        private static readonly SolidBrush brickFillBrush     = new SolidBrush(Color.FromArgb(255, 72, 149, 239));
+        private static readonly SolidBrush brickHighlightBrush = new SolidBrush(Color.FromArgb(255, 140, 195, 255));
+        private static readonly Pen        brickBorderPen     = new Pen(Color.FromArgb(255, 30, 90, 180), 1f);
+        private static readonly SolidBrush paddleFillBrush    = new SolidBrush(Color.White);
+        private static readonly SolidBrush ballFillBrush      = new SolidBrush(Color.FromArgb(255, 255, 160, 40));
+        private static readonly SolidBrush primaryTextBrush   = new SolidBrush(Color.White);
+        private static readonly SolidBrush secondaryTextBrush = new SolidBrush(Color.FromArgb(200, 200, 200, 200));
 
-        public Renderer(GameEngine engine)
+        /// <summary>
+        /// Создаёт рендерер, привязанный к указанному движку.
+        /// </summary>
+        public Renderer(GameEngine gameEngine)
         {
-            _engine = engine;
+            this.gameEngine = gameEngine;
         }
 
-        public void Render(Graphics g)
+        /// <summary>
+        /// Рисует полный кадр на переданном контексте Graphics.
+        /// </summary>
+        public void Render(Graphics graphics)
         {
-            g.Clear(Color.FromArgb(10, 10, 20));   // dark navy background
+            graphics.Clear(Color.FromArgb(10, 10, 20));
 
-            DrawBricks(g);
-            DrawPaddle(g);
-            DrawBall(g);
-            DrawHud(g);
+            DrawBricks(graphics);
+            DrawPaddle(graphics);
+            DrawBall(graphics);
+            DrawHud(graphics);
 
-            if (_engine.State != ArkanoidEngine.Core.GameState.Playing)
-                DrawOverlay(g);
+            if (gameEngine.State != GameState.Playing)
+                DrawOverlay(graphics);
         }
 
-        // -----------------------------------------------------------------------
-        private void DrawBricks(Graphics g)
+        private void DrawBricks(Graphics graphics)
         {
-            foreach (var brick in _engine.Bricks)
+            foreach (var brick in gameEngine.Bricks)
             {
                 if (!brick.IsAlive) continue;
 
-                var fill = new RectangleF(brick.Left, brick.Top, brick.Width, brick.Height);
+                var brickRect = new RectangleF(brick.Left, brick.Top, brick.Width, brick.Height);
 
-                // Main fill
-                g.FillRectangle(BrushBrick, fill);
-
-                // Highlight strip along the top
-                g.FillRectangle(BrushBrickHi,
-                    new RectangleF(fill.X + 2, fill.Y + 2, fill.Width - 4, 4));
-
-                // Border
-                g.DrawRectangle(PenBrick, fill.X, fill.Y, fill.Width, fill.Height);
+                graphics.FillRectangle(brickFillBrush, brickRect);
+                graphics.FillRectangle(brickHighlightBrush,
+                    new RectangleF(brickRect.X + 2, brickRect.Y + 2, brickRect.Width - 4, 4));
+                graphics.DrawRectangle(brickBorderPen, brickRect.X, brickRect.Y, brickRect.Width, brickRect.Height);
             }
         }
 
-        private void DrawPaddle(Graphics g)
+        private void DrawPaddle(Graphics graphics)
         {
-            var p = _engine.Paddle;
-            // Rounded-looking paddle via two rects
-            var rect = new RectangleF(p.Left, p.Top, p.Width, p.Height);
-            g.FillRectangle(BrushPaddle, rect);
+            var paddle     = gameEngine.Paddle;
+            var paddleRect = new RectangleF(paddle.Left, paddle.Top, paddle.Width, paddle.Height);
+            graphics.FillRectangle(paddleFillBrush, paddleRect);
         }
 
-        private void DrawBall(Graphics g)
+        private void DrawBall(Graphics graphics)
         {
-            var b = _engine.Ball;
-            var rect = new RectangleF(
-                b.Position.X - b.Radius,
-                b.Position.Y - b.Radius,
-                b.Radius * 2,
-                b.Radius * 2);
-            g.FillEllipse(BrushBall, rect);
+            var ball     = gameEngine.Ball;
+            var ballRect = new RectangleF(
+                ball.Position.X - ball.Radius,
+                ball.Position.Y - ball.Radius,
+                ball.Radius * 2,
+                ball.Radius * 2);
+            graphics.FillEllipse(ballFillBrush, ballRect);
         }
 
-        private void DrawHud(Graphics g)
+        private void DrawHud(Graphics graphics)
         {
-            g.DrawString($"SCORE  {_engine.Score:D5}", FontHud, BrushText, 10, 12);
+            graphics.DrawString($"SCORE  {gameEngine.Score:D5}", hudFont, primaryTextBrush, 10, 12);
         }
 
-        private void DrawOverlay(Graphics g)
+        private void DrawOverlay(Graphics graphics)
         {
-            int w = _engine.Field.Width;
-            int h = _engine.Field.Height;
+            int fieldWidth  = gameEngine.Field.Width;
+            int fieldHeight = gameEngine.Field.Height;
 
-            // Dark veil
-            g.FillRectangle(BrushOverlay, 0, 0, w, h);
+            graphics.FillRectangle(overlayBackgroundBrush, 0, 0, fieldWidth, fieldHeight);
 
-            string title, sub;
-            switch (_engine.State)
+            string titleText, subtitleText;
+            switch (gameEngine.State)
             {
-                case ArkanoidEngine.Core.GameState.WaitingToStart:
-                    title = "ARKANOID";
-                    sub   = "Move mouse · Click or Space to launch";
+                case GameState.WaitingToStart:
+                    titleText    = "ARKANOID";
+                    subtitleText = "Move mouse · Click or Space to launch";
                     break;
-                case ArkanoidEngine.Core.GameState.Won:
-                    title = "YOU WIN!";
-                    sub   = $"Score: {_engine.Score}   ·   Click or Space to restart";
+                case GameState.Won:
+                    titleText    = "YOU WIN!";
+                    subtitleText = $"Score: {gameEngine.Score}   ·   Click or Space to restart";
                     break;
-                default: // Lost
-                    title = "GAME OVER";
-                    sub   = $"Score: {_engine.Score}   ·   Click or Space to restart";
+                default:
+                    titleText    = "GAME OVER";
+                    subtitleText = $"Score: {gameEngine.Score}   ·   Click or Space to restart";
                     break;
             }
 
-            DrawCenteredString(g, title, FontBig, BrushText,    w, h / 2f - 50);
-            DrawCenteredString(g, sub,   FontSub,  BrushSubText, w, h / 2f + 10);
+            DrawStringCenteredHorizontally(graphics, titleText,    overlayTitleFont,    primaryTextBrush,   fieldWidth, fieldHeight / 2f - 50);
+            DrawStringCenteredHorizontally(graphics, subtitleText, overlaySubtitleFont, secondaryTextBrush, fieldWidth, fieldHeight / 2f + 10);
         }
 
-        private static void DrawCenteredString(Graphics g, string text, Font font, Brush brush, float fieldWidth, float y)
+        private static void DrawStringCenteredHorizontally(Graphics graphics, string text, Font font, Brush brush, float fieldWidth, float positionY)
         {
-            var size = g.MeasureString(text, font);
-            g.DrawString(text, font, brush, (fieldWidth - size.Width) / 2f, y);
+            var textSize = graphics.MeasureString(text, font);
+            graphics.DrawString(text, font, brush, (fieldWidth - textSize.Width) / 2f, positionY);
         }
     }
 }

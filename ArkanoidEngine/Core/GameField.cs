@@ -1,14 +1,23 @@
 namespace ArkanoidEngine.Core
 {
     /// <summary>
-    /// Defines the dimensions of the game area.
-    /// Origin (0,0) is top-left. X grows right, Y grows down.
+    /// Размеры игрового поля в пикселях.
     /// </summary>
     public class GameField
     {
+        /// <summary>
+        /// Ширина поля в пикселях.
+        /// </summary>
         public int Width  { get; }
+
+        /// <summary>
+        /// Высота поля в пикселях.
+        /// </summary>
         public int Height { get; }
 
+        /// <summary>
+        /// Создаёт игровое поле с заданными размерами.
+        /// </summary>
         public GameField(int width, int height)
         {
             Width  = width;

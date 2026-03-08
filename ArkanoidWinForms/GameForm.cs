@@ -5,80 +5,70 @@ using ArkanoidEngine.Core;
 
 namespace ArkanoidWinForms
 {
+
     /// <summary>
-    /// WinForms shell. Responsibilities:
-    ///   - Host the game window
-    ///   - Drive the game loop via a Timer
-    ///   - Forward mouse/keyboard input to the engine
-    ///   - Hand a Graphics context to the Renderer each frame
-    ///
-    /// All game logic lives in ArkanoidEngine — this form is intentionally thin.
-    /// </summary>
+    /// Главная форма — управляет окном, вводом и игровым циклом.
+    /// <summary>
     public sealed class GameForm : Form
     {
-        private GameEngine _engine;
-        private Renderer   _renderer;
-        private Timer      _gameTimer;
-        private DateTime   _lastTick;
+        private GameEngine gameEngine;
+        private Renderer   gameRenderer;
+        private Timer      gameLoopTimer;
+        private DateTime   lastFrameTime;
 
+        /// <summary>
+        /// Создаёт форму и запускает игру.
+        /// </summary>
         public GameForm()
         {
             SetupForm();
             SetupGame();
         }
-
-        // -----------------------------------------------------------------------
+        
         private void SetupForm()
         {
-            ClientSize        = new Size(600, 800);
-            Text              = "Arkanoid";
-            FormBorderStyle   = FormBorderStyle.FixedSingle;
-            MaximizeBox       = false;
-            DoubleBuffered    = true;   // eliminates flicker
-            BackColor         = Color.Black;
+            ClientSize      = new Size(600, 800);
+            Text            = "Arkanoid";
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox     = false;
+            DoubleBuffered  = true;
+            BackColor       = Color.Black;
             Cursor.Hide();
         }
 
         private void SetupGame()
         {
-            _engine   = new GameEngine(fieldWidth: 600, fieldHeight: 800);
-            _renderer = new Renderer(_engine);
+            gameEngine   = new GameEngine(fieldWidth: 600, fieldHeight: 800);
+            gameRenderer = new Renderer(gameEngine);
 
-            _engine.OnBallLost      += () => { /* Could trigger screen shake, etc. */ };
-            _engine.OnLevelComplete += () => { /* Could trigger fanfare, etc. */ };
+            gameEngine.OnBallLost      += () => { };
+            gameEngine.OnLevelComplete += () => { };
 
-            _gameTimer          = new Timer { Interval = 16 }; // ~62 fps
-            _gameTimer.Tick     += GameLoop;
-            _lastTick           = DateTime.UtcNow;
-            _gameTimer.Start();
+            gameLoopTimer          = new Timer { Interval = 16 };
+            gameLoopTimer.Tick    += OnGameLoopTick;
+            lastFrameTime          = DateTime.UtcNow;
+            gameLoopTimer.Start();
 
-            MouseMove  += OnMouseMove;
-            MouseDown  += OnMouseDown;
-            KeyDown    += OnKeyDown;
+            MouseMove += OnMouseMove;
+            MouseDown += OnMouseDown;
+            KeyDown   += OnKeyDown;
         }
 
-        // -----------------------------------------------------------------------
-        // Game loop
-        // -----------------------------------------------------------------------
-        private void GameLoop(object sender, EventArgs e)
+        private void OnGameLoopTick(object sender, EventArgs e)
         {
-            DateTime now   = DateTime.UtcNow;
-            float    delta = (float)(now - _lastTick).TotalSeconds;
-            _lastTick      = now;
+            DateTime currentFrameTime = DateTime.UtcNow;
+            float    deltaTime        = (float)(currentFrameTime - lastFrameTime).TotalSeconds;
+            lastFrameTime             = currentFrameTime;
 
-            // Cap delta to avoid spiral of death after window drag / breakpoint
-            delta = Math.Min(delta, 0.05f);
+            deltaTime = Math.Min(deltaTime, 0.05f);
 
-            _engine.Update(delta);
+            gameEngine.Update(deltaTime);
             Invalidate();
         }
 
-        // -----------------------------------------------------------------------
-        // Input forwarding
-        // -----------------------------------------------------------------------
         private void OnMouseMove(object sender, MouseEventArgs e)
         {
-            _engine.SetPaddleX(e.X);
+            gameEngine.SetPaddleX(e.X);
         }
 
         private void OnMouseDown(object sender, MouseEventArgs e)
@@ -94,26 +84,26 @@ namespace ArkanoidWinForms
 
         private void HandleLaunchOrRestart()
         {
-            switch (_engine.State)
+            switch (gameEngine.State)
             {
                 case GameState.WaitingToStart:
-                    _engine.StartGame();
+                    gameEngine.StartGame();
                     break;
                 case GameState.Won:
                 case GameState.Lost:
-                    _engine.Reset();
+                    gameEngine.Reset();
                     break;
             }
         }
 
-        // -----------------------------------------------------------------------
-        // Rendering
-        // -----------------------------------------------------------------------
+        /// <summary>
+        /// Передаёт контекст Graphics рендереру для отрисовки текущего кадра.
+        /// </summary>
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            _renderer.Render(e.Graphics);
+            gameRenderer.Render(e.Graphics);
         }
     }
 }

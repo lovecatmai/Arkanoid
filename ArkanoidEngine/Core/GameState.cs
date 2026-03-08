@@ -1,10 +1,28 @@
 namespace ArkanoidEngine.Core
 {
+    /// <summary>
+    /// Перечисление возможных состояний игры.
+    /// </summary>
     public enum GameState
     {
-        WaitingToStart, // Ball is on paddle, waiting for player to launch
+        /// <summary>
+        /// Мяч на платформе, ожидание запуска.
+        /// </summary>
+        WaitingToStart,
+
+        /// <summary>
+        /// Игра идёт, мяч в движении.
+        /// </summary>
         Playing,
+
+        /// <summary>
+        /// Все кирпичи уничтожены — победа.
+        /// </summary>
         Won,
+
+        /// <summary>
+        /// Мяч упал за нижний край — поражение.
+        /// </summary>
         Lost
     }
 }
