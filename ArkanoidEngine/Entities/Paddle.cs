@@ -1,3 +1,5 @@
+using static ArkanoidEngine.GameConstants;
+
 namespace ArkanoidEngine.Entities
 {
     /// <summary>
@@ -5,10 +7,6 @@ namespace ArkanoidEngine.Entities
     /// </summary>
     public class Paddle
     {
-        private const float paddleWidth = 100f;
-        private const float paddleHeigth = 15f;
-        private const float halfDivisor = 2f;
-
         /// <summary>
         /// Позиция платформы: X — горизонтальный центр, Y — верхний край.
         /// </summary>
@@ -27,22 +25,22 @@ namespace ArkanoidEngine.Entities
         /// <summary>
         /// Левая граница платформы.
         /// </summary>
-        public float Left    => Position.X - Width / halfDivisor;
+        public float Left => Position.X - Width / halfDivisor;
 
         /// <summary>
         /// Правая граница платформы.
         /// </summary>
-        public float Right   => Position.X + Width / halfDivisor;
+        public float Right => Position.X + Width / halfDivisor;
 
         /// <summary>
         /// Верхняя граница платформы.
         /// </summary>
-        public float Top     => Position.Y;
+        public float Top => Position.Y;
 
         /// <summary>
         /// Нижняя граница платформы.
         /// </summary>
-        public float Bottom  => Position.Y + Height;
+        public float Bottom => Position.Y + Height;
 
         /// <summary>
         /// Горизонтальный центр платформы.
@@ -55,8 +53,8 @@ namespace ArkanoidEngine.Entities
         public Paddle(Vector2 position, float width = paddleWidth, float height = paddleHeigth)
         {
             Position = position;
-            Width    = width;
-            Height   = height;
+            Width = width;
+            Height = height;
         }
     }
 }

@@ -95,8 +95,10 @@ namespace ArkanoidWinForms
             DrawBall(graphics);
             DrawHud(graphics);
 
-            if (gameEngine.State != GameState.Playing)
+            if (gameEngine.State != GameState.Playing) 
+            {
                 DrawOverlay(graphics);
+            }
         }
 
         private void DrawBricks(Graphics graphics)
@@ -113,7 +115,9 @@ namespace ArkanoidWinForms
                         brickRect.X + brickHighlightOffsetFromEdge,
                         brickRect.Y + brickHighlightOffsetFromEdge,
                         brickRect.Width - brickHighlightOffsetFromEdge * bothSidesMultiplier,
-                        brickHighlightStripHeight));
+                        brickHighlightStripHeight
+                        )
+                    );
                 graphics.DrawRectangle(brickBorderPen, brickRect.X, brickRect.Y, brickRect.Width, brickRect.Height);
             }
         }
@@ -132,7 +136,8 @@ namespace ArkanoidWinForms
                 ball.Position.X - ball.Radius,
                 ball.Position.Y - ball.Radius,
                 ball.Radius * bothSidesMultiplier,
-                ball.Radius * bothSidesMultiplier);
+                ball.Radius * bothSidesMultiplier
+                );
             graphics.FillEllipse(ballFillBrush, ballRect);
         }
 

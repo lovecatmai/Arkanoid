@@ -1,5 +1,6 @@
 using ArkanoidEngine.Entities;
 using System.Collections.Generic;
+using static ArkanoidEngine.GameConstants;
 
 namespace ArkanoidEngine.Core
 {
@@ -8,19 +9,6 @@ namespace ArkanoidEngine.Core
     /// </summary>
     public static class LevelBuilder
     {
-        private const int numberOfColumns = 10;
-        private const int numberOfRows = 6;
-        private const float brickHeightInPixels = 20f;
-        private const float horizontalGapBetweenBricks = 3f;
-        private const float verticalGapBetweenBricks = 5f;
-        private const float topOffsetBeforeFirstRow = 70f;
-        private const float sideMarginFromWall = 4f;
-        private const int numberOfGapsBetweenColumns = numberOfColumns - 1;
-        private const int numberOfSideMargins = 2;
-        private const int brickHitPointsForLevel1 = 1;
-        private const int firstColumnIndex = 0;
-        private const int firstRowIndex = 0;
-
         /// <summary>
         /// Строит список кирпичей для первого уровня.
         /// </summary>

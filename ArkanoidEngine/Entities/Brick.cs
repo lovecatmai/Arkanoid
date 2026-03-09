@@ -1,3 +1,5 @@
+using static ArkanoidEngine.GameConstants;
+
 namespace ArkanoidEngine.Entities
 {
     /// <summary>
@@ -5,11 +7,6 @@ namespace ArkanoidEngine.Entities
     /// </summary>
     public class Brick
     {
-        private const int brickMinHP = 0;
-        private const int brickMaxHP = 1;
-        private const float halfWidthDivisor = 2f;
-        private const float halfHeightDivisor = 2f;
-
         /// <summary>
         /// Позиция левого верхнего угла кирпича.
         /// </summary>
@@ -43,17 +40,17 @@ namespace ArkanoidEngine.Entities
         /// <summary>
         /// Левая граница кирпича.
         /// </summary>
-        public float Left   => Position.X;
+        public float Left => Position.X;
 
         /// <summary>
         /// Правая граница кирпича.
         /// </summary>
-        public float Right  => Position.X + Width;
+        public float Right => Position.X + Width;
 
         /// <summary>
         /// Верхняя граница кирпича.
         /// </summary>
-        public float Top    => Position.Y;
+        public float Top => Position.Y;
 
         /// <summary>
         /// Нижняя граница кирпича.
@@ -61,24 +58,14 @@ namespace ArkanoidEngine.Entities
         public float Bottom => Position.Y + Height;
 
         /// <summary>
-        /// Горизонтальный центр кирпича.
-        /// </summary>
-        public float CenterX => Position.X + Width / halfWidthDivisor;
-
-        /// <summary>
-        /// Вертикальный центр кирпича.
-        /// </summary>
-        public float CenterY => Position.Y + Height / halfHeightDivisor;
-
-        /// <summary>
         /// Создаёт кирпич с заданной позицией, размерами и количеством HP.
         /// </summary>
         public Brick(Vector2 position, float width, float height, int hp = brickMaxHP)
         {
-            Position  = position;
-            Width     = width;
-            Height    = height;
-            MaxHp     = hp;
+            Position = position;
+            Width = width;
+            Height = height;
+            MaxHp = hp;
             CurrentHp = hp;
         }
 
@@ -88,7 +75,10 @@ namespace ArkanoidEngine.Entities
         public void TakeDamage(int damage)
         {
             CurrentHp -= damage;
-            if (CurrentHp < brickMinHP) CurrentHp = brickMinHP;
+            if (CurrentHp < brickMinHP)
+            {
+                CurrentHp = brickMinHP;
+            }
         }
     }
 }

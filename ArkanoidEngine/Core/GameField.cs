@@ -8,7 +8,7 @@ namespace ArkanoidEngine.Core
         /// <summary>
         /// Ширина поля в пикселях.
         /// </summary>
-        public int Width  { get; }
+        public int Width { get; }
 
         /// <summary>
         /// Высота поля в пикселях.
@@ -20,7 +20,7 @@ namespace ArkanoidEngine.Core
         /// </summary>
         public GameField(int width, int height)
         {
-            Width  = width;
+            Width = width;
             Height = height;
         }
     }

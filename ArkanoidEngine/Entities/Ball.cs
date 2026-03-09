@@ -1,3 +1,5 @@
+using static ArkanoidEngine.GameConstants;
+
 namespace ArkanoidEngine.Entities
 {
     /// <summary>
@@ -5,9 +7,6 @@ namespace ArkanoidEngine.Entities
     /// </summary>
     public class Ball
     {
-        private const float ballRadius = 8f;
-        private const int ballDamage = 1;
-
         /// <summary>
         /// Позиция центра мяча на игровом поле.
         /// </summary>
@@ -35,8 +34,8 @@ namespace ArkanoidEngine.Entities
         {
             Position = position;
             Velocity = velocity;
-            Radius   = radius;
-            Damage   = damage;
+            Radius = radius;
+            Damage = damage;
         }
     }
 }

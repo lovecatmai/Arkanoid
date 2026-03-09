@@ -1,5 +1,6 @@
 using ArkanoidEngine.Entities;
 using System;
+using static ArkanoidEngine.GameConstants;
 
 namespace ArkanoidEngine.Core
 {
@@ -8,12 +9,6 @@ namespace ArkanoidEngine.Core
     /// </summary>
     public static class CollisionDetector
     {
-        private const float paddleHalfWidthDivisor = 2f;
-        private const float hitRatioMinClamp = -1f;
-        private const float hitRatioMaxClamp = 1f;
-        private const float maxDeflectionAngleInDegrees = 65f;
-        private const float degreesToRadiansConversionDivisor = 180f;
-
         /// <summary>
         /// Проверяет столкновение мяча с прямоугольником и возвращает оси отражения.
         /// </summary>
@@ -38,15 +33,22 @@ namespace ArkanoidEngine.Core
 
             var squaredDistance = distanceX * distanceX + distanceY * distanceY;
             if (squaredDistance >= ball.Radius * ball.Radius)
+            {
                 return false;
+            }
+                
 
             var penetrationX = ball.Radius - Math.Abs(distanceX);
             var penetrationY = ball.Radius - Math.Abs(distanceY);
 
             if (penetrationX < penetrationY)
+            {
                 reflectX = true;
+            }
             else
+            {
                 reflectY = true;
+            }
 
             return true;
         }
@@ -60,29 +62,36 @@ namespace ArkanoidEngine.Core
 
             var isHit = CheckBallVsRect(
                 ball,
-                paddle.Left, paddle.Top, paddle.Right, paddle.Bottom,
-                out bool reflectX, out bool reflectY);
+                paddle.Left,
+                paddle.Top,
+                paddle.Right,
+                paddle.Bottom,
+                out bool reflectX,
+                out bool reflectY
+                );
 
             if (!isHit) return false;
 
             var currentSpeed = (float)Math.Sqrt(
                 ball.Velocity.X * ball.Velocity.X +
-                ball.Velocity.Y * ball.Velocity.Y);
+                ball.Velocity.Y * ball.Velocity.Y
+                );
 
             var hitPositionRatio = (ball.Position.X - paddle.CenterX) / (paddle.Width / paddleHalfWidthDivisor);
             hitPositionRatio = Clamp(hitPositionRatio, hitRatioMinClamp, hitRatioMaxClamp);
 
             var maxDeflectionAngle = maxDeflectionAngleInDegrees * (float)(Math.PI / degreesToRadiansConversionDivisor);
-            var deflectionAngle    = hitPositionRatio * maxDeflectionAngle;
+            var deflectionAngle = hitPositionRatio * maxDeflectionAngle;
 
             newVelocity = new Vector2(
                 (float)Math.Sin(deflectionAngle) * currentSpeed,
-                -(float)Math.Cos(deflectionAngle) * currentSpeed);
+                -(float)Math.Cos(deflectionAngle) * currentSpeed
+                );
 
             return true;
         }
 
-        private static float Clamp(float value, float min, float max)
+        private static float Clamp(float value, float min, float max) // Он не даёт числу выйти за заданные границы
             => value < min ? min : value > max ? max : value;
     }
 }

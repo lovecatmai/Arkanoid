@@ -30,23 +30,8 @@ namespace ArkanoidEngine.Entities
         public static Vector2 operator +(Vector2 a, Vector2 b) => new Vector2(a.X + b.X, a.Y + b.Y);
 
         /// <summary>
-        /// Вычитание двух векторов.
-        /// </summary>
-        public static Vector2 operator -(Vector2 a, Vector2 b) => new Vector2(a.X - b.X, a.Y - b.Y);
-
-        /// <summary>
         /// Умножение вектора на скаляр.
         /// </summary>
         public static Vector2 operator *(Vector2 v, float scalar) => new Vector2(v.X * scalar, v.Y * scalar);
-
-        /// <summary>
-        /// Умножение скаляра на вектор.
-        /// </summary>
-        public static Vector2 operator *(float scalar, Vector2 v) => new Vector2(v.X * scalar, v.Y * scalar);
-
-        /// <summary>
-        /// Строковое представление вектора.
-        /// </summary>
-        public override string ToString() => $"({X:F1}, {Y:F1})";
     }
 }

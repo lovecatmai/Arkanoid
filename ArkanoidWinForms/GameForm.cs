@@ -49,9 +49,6 @@ namespace ArkanoidWinForms
             gameEngine = new GameEngine(fieldWidth: clientSizeWindowWidth, fieldHeight: clientSizeWindowHeight);
             gameRenderer = new Renderer(gameEngine);
 
-            gameEngine.OnBallLost += () => { };
-            gameEngine.OnLevelComplete += () => { };
-
             gameLoopTimer = new Timer { Interval = gameLoopTimerInterval };
             gameLoopTimer.Tick += OnGameLoopTick;
             lastFrameTime = DateTime.UtcNow;
@@ -106,8 +103,10 @@ namespace ArkanoidWinForms
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Space)
+            if (e.KeyCode == Keys.Space) 
+            {
                 HandleLaunchOrRestart();
+            }
         }
 
         private void HandleLaunchOrRestart()
