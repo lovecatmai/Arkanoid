@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- netstandard2.0 keeps the engine portable — no WinForms dependency -->
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>ArkanoidEngine</RootNamespace>
+    <AssemblyName>ArkanoidEngine</AssemblyName>
+  </PropertyGroup>
+
+</Project>
